@@ -1,0 +1,9 @@
+#!name=探索星號 每小時查房
+#!desc=每天自動簽到，第一次使用請先手動到個人資訊 → 累計點數以取得token。 此模組是參考Shein模組攥寫 v20221214
+
+[Script]
+[StarCabin]每小時查房 = type=cron, cronexp="44 * * * *", script-path=https://raw.githubusercontent.com/zmLiu1992/Cabin/refs/heads/master/StarCruiseCheckCabin.js, wake-system=1, timeout=5
+[StarCabin]取得token = type=http-request, pattern=^https:\/\/backend-prd\.b2m\.stardreamcruises\.com\/customers\/list\/departure-date, script-path=https://raw.githubusercontent.com/zmLiu1992/Cabin/refs/heads/master/StarCruiseToken.js
+
+[MITM]
+hostname = %APPEND% *.stardreamcruises.com
