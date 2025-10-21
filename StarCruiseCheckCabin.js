@@ -1,11 +1,11 @@
   function starCruiseNotify(subtitle = '', message = '') {
-      $notification.post('Star Cruise 查房', subtitle, message, {
+      $notification.post('Star Cruise 基隆查房', subtitle, message, {
           'url': ''
       });
   };
 
   const checkCabinRequest = {
-      url: 'https://www.abc-mart.com.tw/api/home',
+      url: 'https://backend-prd.b2m.stardreamcruises.com/customers/list/itinerary?port_id=12&lang=hant&page=1',
       headers: {
           'authorization': $persistentStore.read('StarCruiseToken'),
       }
