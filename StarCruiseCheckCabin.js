@@ -38,7 +38,7 @@
 
                       starCruiseNotify(
                           '房間資訊',
-                          ormattedList.join('\n')
+                          formattedList.join('\n')
                       );
                   } catch (e) {
                       starCruiseNotify(
