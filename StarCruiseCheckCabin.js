@@ -1,60 +1,135 @@
   function starCruiseNotify(subtitle = '', message = '') {
-      $notification.post('Star Cruise 基隆查房', subtitle, message, {
+      $notification.post('StarCruise 基隆查房', subtitle, message, {
           'url': ''
       });
   };
 
-  const checkCabinRequest = {
-      url: 'https://backend-prd.b2m.stardreamcruises.com/customers/list/itinerary?port_id=12&lang=hant&page=1',
-      headers: {
-          'authorization': $persistentStore.read('StarCruiseToken'),
-      }
-  };
+  // portNum = 12 Keelung
+  function getDepartureDates(portNum, callback) {
+      const requestUrl = {
+          url: `https://backend-prd.b2m.stardreamcruises.com/customers/list/departure-date?departure_port=${portNum}&lang=hant`,
+          headers: {
+              'authorization': $persistentStore.read('StarCruiseToken'),
+          }
+      };
 
-  function checkCabin() {
-      $httpClient.get(checkCabinRequest, function(error, response, data) {
+      $httpClient.get(requestUrl, function(error, response, data) {
           if (error) {
-              starCruiseNotify(
-                  '查房失敗 ‼️',
-                  '連線錯誤'
-              );
-              $done();
+              starCruiseNotify('出發日查詢失敗 ‼️', '連線錯誤');
+              callback([]);
           } else {
               if (response.status === 200) {
-                  const obj = JSON.parse(data);
                   try {
-
-                      // 排序 items，依照 updated_at 由新到舊
-                      const sortedItems = obj.items.sort((a, b) => {
-                          return new Date(b.updated_at) - new Date(a.updated_at);
-                      });
-
-                      // 格式化日期並組合通知文字
-                      const formattedList = sortedItems.map(item => {
-                          const date = new Date(item.updated_at);
-                          const formattedDate = `${date.getFullYear()}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
-                          return `${formattedDate} - ${item.traditional_chinese_name}`;
-                      });
-
-                      starCruiseNotify(
-                          '房間資訊',
-                          formattedList.join('\n')
-                      );
+                      const datas = JSON.parse(data);
+                      callback(datas);
                   } catch (e) {
-                      starCruiseNotify(
-                          '查房失敗 ‼️',
-                          e
-                      );
+                      starCruiseNotify('出發日查詢失敗 ‼️', e);
+                      callback([]);
                   }
               } else {
-                  starCruiseNotify(
-                      'Cookie 已過期 ‼️',
-                      '請重新登入'
-                  );
-                  $done();
+                  starCruiseNotify('Cookie 已過期 ‼️', '請重新登入');
+                  callback([]);
               }
           }
-          $done();
       });
   }
-  checkCabin();
+
+
+  function getItinerary(portNum, departureDate, callback) {
+      const requestUrl = {
+          url: `https://backend-prd.b2m.stardreamcruises.com/customers/list/itinerary?port_id=${portNum}&departure_date=${departureDate}&lang=hant&page=1`,
+          headers: {
+              'authorization': $persistentStore.read('StarCruiseToken'),
+          }
+      };
+
+      $httpClient.get(requestUrl, function(error, response, data) {
+          if (error) {
+              starCruiseNotify('出航查詢失敗 ‼️', '連線錯誤');
+              callback('');
+          } else {
+              if (response.status === 200) {
+                  try {
+                      const jsonData = JSON.parse(data);
+
+                      if (jsonData.items && jsonData.items.length > 0) {
+                          callback(jsonData.items[0].traditional_chinese_name);
+                      } else {
+                          callback('');
+                      }
+
+                  } catch (e) {
+                      starCruiseNotify('出航查詢失敗 ‼️', e);
+                      callback('');
+                  }
+              } else {
+                  starCruiseNotify('Cookie 已過期 ‼️', '請重新登入');
+                  callback('');
+              }
+          }
+      });
+  }
+
+  function checkCabin(portNum, departureDate, itineraryName, persons, callback) {
+      const requestUrl = {
+          url: `https://backend-prd.b2m.stardreamcruises.com/customers/cabin-allotment?itinerary_name=${itineraryName}&departure_date=${departureDate}&departure_port=${portNum}&pax=${persons}&lang=hant&currentStep=0&page=1`,
+          headers: {
+              'authorization': $persistentStore.read('StarCruiseToken'),
+          }
+      };
+
+      $httpClient.get(requestUrl, function(error, response, data) {
+          if (error) {
+              starCruiseNotify('查房失敗 ‼️', '連線錯誤');
+              callback([]);
+          } else {
+              if (response.status === 200) {
+                  try {
+                      const jsonData = JSON.parse(data);
+
+                      if (!jsonData.items || jsonData.items.length == 0) {
+                          callback([]);
+                      }
+
+                      const cabins = jsonData.items.map(item => `(${item.cabin_id}) ${item.traditional_chinese_cabin_name}`);
+                      callback(cabins);
+
+                  } catch (e) {
+                      starCruiseNotify('查房失敗 ‼️', e);
+                      callback([]);
+                  }
+              } else {
+                  starCruiseNotify('Cookie 已過期 ‼️', '請重新登入');
+                  callback([]);
+              }
+          }
+      });
+  }
+
+  function urlencode(str) {
+      return encodeURIComponent(str).replace(/%20/g, '+');
+  }
+
+  function execute() {
+      const portNum = 12; // Keelung = 12, Kaohsiung = 13
+      const persons = 2;
+     
+      getDepartureDates(portNum, function(departureDatas) {
+          if (departureDatas.length == 0) {
+              starCruiseNotify('出發日查詢', '沒有資料');
+              $done();
+          }
+
+          departureDatas.forEach(date => {
+              getItinerary(portNum, date, function(itinerary) {
+                  checkCabin(portNum, date, urlencode(itinerary), persons, function(cabins) {
+                      let result =`${date} ${itinerary} ${cabins.length}房\n${cabins.join('\n')}`;
+					            starCruiseNotify('查房結果', result);
+                  });
+              });
+          });
+      });
+	$done();	  
+  }
+
+  execute();
