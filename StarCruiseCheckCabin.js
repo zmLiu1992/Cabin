@@ -159,7 +159,7 @@
           messages.push(result);
       }
 
-      starCruiseNotify('查房結果', messages.join('\n'));
+      starCruiseNotify('', messages.join('\n'));
       $done();
       return;
   }
