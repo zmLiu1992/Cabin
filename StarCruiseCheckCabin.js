@@ -154,7 +154,7 @@
           const shortItinerary = getShortItinerary(itinerary);
           const cabinInfo = getCabinInfos(cabins);
 
-          let result = `[${cabins.length}房] ${date} ${shortItinerary}${cabinInfo}\n`;
+          let result = `[${cabins.length}房] ${date} ${shortItinerary}${cabinInfo}`;
           messages.push(result);
       }
 
