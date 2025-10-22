@@ -31,6 +31,7 @@
                   } else {
                       starCruiseNotify('Cookie 已過期 ‼️', '請重新登入');
                       resolve([]);
+                      $done();
                   }
               }
           });
