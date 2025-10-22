@@ -113,6 +113,7 @@
   function execute() {
       const portNum = 12; // Keelung = 12, Kaohsiung = 13
       const persons = 2;
+      let messages = [];
      
       getDepartureDates(portNum, function(departureDatas) {
           if (departureDatas.length == 0) {
@@ -120,16 +121,23 @@
               $done();
           }
 
+          let completeCount = 0;
           departureDatas.forEach(date => {
               getItinerary(portNum, date, function(itinerary) {
                   checkCabin(portNum, date, urlencode(itinerary), persons, function(cabins) {
                       let result =`${date} ${itinerary} ${cabins.length}房\n${cabins.join('\n')}`;
-					            starCruiseNotify('查房結果', result);
+                      messages.push(result);
+
+                      completeCount++;
+                      if (completeCount === departureDatas.length) {
+                        starCruiseNotify('查房結果', messages.join('\n'));
+                        $done();
+                        return;
+                      }
                   });
               });
           });
       });
-	$done();	  
   }
 
   execute();
