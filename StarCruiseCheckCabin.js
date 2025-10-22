@@ -35,7 +35,6 @@
               }
           });
       });
-
   }
 
 
@@ -74,8 +73,6 @@
               }
           });
       });
-
-
   }
 
   function checkCabin(portNum, departureDate, itineraryName, persons) {
@@ -115,12 +112,27 @@
               }
           });
       });
-
-
   }
 
   function urlencode(str) {
       return encodeURIComponent(str).replace(/%20/g, '+');
+  }
+
+  function getShortItinerary(text) {
+      const parts = text.split(' - ');
+      if (parts.length >= 3) {
+          const days = parts[1];
+          const destination = parts.slice(2).join('-').replace('海上遊', '');
+          return `(${days}) ${destination}`;
+      }
+  }
+
+  function getCabinInfos(cabins) {
+      if (Array.isArray(cabins) && cabins.length > 0) {
+          return '\n' + cabins.join('\n');  
+      }
+      
+      return '';
   }
 
   async function execute() {
@@ -139,17 +151,16 @@
           const itinerary = await getItinerary(portNum, date);
           const cabins = await checkCabin(portNum, date, urlencode(itinerary), persons);
 
-          let result = `${date} ${itinerary} ${cabins.length}房\n${cabins.join('\n')}`;
+          const shortItinerary = getShortItinerary(itinerary);
+          const cabinInfo = getCabinInfos(cabins);
+
+          let result = `[${cabins.length}房] ${date} ${shortItinerary}${cabinInfo}\n`;
           messages.push(result);
-
-
       }
 
       starCruiseNotify('查房結果', messages.join('\n'));
       $done();
       return;
-
-
   }
 
   execute();
