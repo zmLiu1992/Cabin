@@ -1,10 +1,9 @@
   function starCruiseNotify(subtitle = '', message = '') {
-      $notification.post('StarCruise 基隆查房', subtitle, message, {
+      $notification.post('StarCruise 智慧查房', subtitle, message, {
           'url': ''
       });
   };
 
-  // portNum = 12 Keelung
   function getDepartureDates(portNum) {
 
       return new Promise((resolve) => {
@@ -31,7 +30,8 @@
                   } else {
                       starCruiseNotify('Cookie 已過期 ‼️', '請重新登入');
                       resolve([]);
-                      $done();
+					  $done();
+					  return;
                   }
               }
           });
@@ -136,10 +136,22 @@
       return '';
   }
 
+
+  const portDictionary = {
+    "12": "基隆",
+    "13": "高雄"
+  };
+
   async function execute() {
-      const portNum = 12; // Keelung = 12, Kaohsiung = 13
+      const portNum = $argument || 12;
       const persons = 2;
       let messages = [];
+	  
+	  if (!(portNum in portDictionary)) {
+		  starCruiseNotify('港口編號錯誤', `未知港口編號 ${portNum}`);
+		  $done();
+		  return;
+	  }
 
       const departureDates = await getDepartureDates(portNum);
       if (departureDates.length == 0) {
@@ -159,7 +171,7 @@
           messages.push(result);
       }
 
-      starCruiseNotify('', messages.join('\n'));
+      starCruiseNotify(`查房結果 ${portDictionary[portNum]}`, messages.join('\n'));
       $done();
       return;
   }
