@@ -180,7 +180,7 @@
 			  
 			  const isLast = i === departureDates.length - 1;
 			  if (messages.length === maxMessageLine || isLast) {
-			      starCruiseNotify(`『${portName}』 出發`, messages.join('\n'));
+			      starCruiseNotify(`『${portDictionary[portNum]}』 出發`, messages.join('\n'));
 				  messages = [];
 			  }
 		  }
