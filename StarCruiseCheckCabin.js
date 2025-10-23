@@ -130,7 +130,7 @@
 
   function getCabinInfos(cabins) {
       if (Array.isArray(cabins) && cabins.length > 0) {
-          return '      ' + cabins.join('\n');  
+          return '         ' + cabins.join('\n');  
       }
       
       return '';
@@ -142,23 +142,9 @@
     13: "高雄"
   };
 
-  function sendNotify(portName, messages) {
-	  const maxLine = 8;
-	  
-	  if (!messages || messages.length === 0)
-	  {
-		  starCruiseNotify(`『${portName}』 出發`, '沒有資料');
-		  return;
-	  }
-	  
-      for (let i = 0; i < messages.length; i += maxLine) {
-          let group = messages.slice(i, i + maxLine);
-          let body = group.join("\n");
-		  starCruiseNotify(`『${portName}』 出發`, body);
-      }
-  }
-
   async function execute() {
+	  const maxMessageLine = 8;
+	  
 	  try {
 		  const portNum = parseInt($intent.parameter || "12", 10);
 		  const persons = 2;
@@ -177,7 +163,8 @@
 			  return;
 		  }
 
-		  for (const date of departureDates) {
+		  for (let i = 0; i < departureDates.length; i++) {
+			  const date = departureDates[i];
 			  const itinerary = await getItinerary(portNum, date);
 			  const cabins = await checkCabin(portNum, date, urlencode(itinerary), persons);
 
@@ -190,9 +177,13 @@
 			  if (cabinInfo !== '') {
 				  messages.push(cabinInfo);
 			  }
+			  
+			  const isLast = i === departureDates.length - 1;
+			  if (messages.length === maxMessageLine || isLast) {
+			      starCruiseNotify(`『${portName}』 出發`, messages.join('\n'));
+				  messages = [];
+			  }
 		  }
-
-		  sendNotify(portDictionary[portNum], messages);
 	  } catch (e) {
 	      starCruiseNotify('執行錯誤', String(e));
 	  } finally {
