@@ -130,7 +130,7 @@
 
   function getCabinInfos(cabins) {
       if (Array.isArray(cabins) && cabins.length > 0) {
-          return '\n' + cabins.join('\n');  
+          return '      ' + cabins.join('\n');  
       }
       
       return '';
@@ -138,42 +138,67 @@
 
 
   const portDictionary = {
-    "12": "基隆",
-    "13": "高雄"
+    12: "基隆",
+    13: "高雄"
   };
 
-  async function execute() {
-      const portNum = $argument || 12;
-      const persons = 2;
-      let messages = [];
+  function sendNotify(portName, messages) {
+	  const maxLine = 8;
 	  
-	  if (!(portNum in portDictionary)) {
-		  starCruiseNotify('港口編號錯誤', `未知港口編號 ${portNum}`);
-		  $done();
+	  if (!messages || messages.length === 0)
+	  {
+		  starCruiseNotify(`『${portName}』 出發`, '沒有資料');
 		  return;
 	  }
-
-      const departureDates = await getDepartureDates(portNum);
-      if (departureDates.length == 0) {
-          starCruiseNotify('出發日查詢', '沒有資料');
-          $done();
-          return;
+	  
+      for (let i = 0; i < messages.length; i += maxLine) {
+          let group = messages.slice(i, i + maxLine);
+          let body = group.join("\n");
+		  starCruiseNotify(`『${portName}』 出發`, body);
       }
+  }
 
-      for (const date of departureDates) {
-          const itinerary = await getItinerary(portNum, date);
-          const cabins = await checkCabin(portNum, date, urlencode(itinerary), persons);
+  async function execute() {
+	  try {
+		  const portNum = parseInt($intent.parameter || "12", 10);
+		  const persons = 2;
+		  let messages = [];
+				
+		  if (!(portNum in portDictionary)) {
+			  starCruiseNotify('港口編號錯誤', `未知港口編號 ${portNum}`);
+			  $done();
+			  return;
+		  }
 
-          const shortItinerary = getShortItinerary(itinerary);
-          const cabinInfo = getCabinInfos(cabins);
+		  const departureDates = await getDepartureDates(portNum);
+		  if (departureDates.length == 0) {
+			  starCruiseNotify('出發日查詢', '沒有資料');
+			  $done();
+			  return;
+		  }
 
-          let result = `[${cabins.length}房] ${date} ${shortItinerary}${cabinInfo}`;
-          messages.push(result);
-      }
+		  for (const date of departureDates) {
+			  const itinerary = await getItinerary(portNum, date);
+			  const cabins = await checkCabin(portNum, date, urlencode(itinerary), persons);
 
-      starCruiseNotify(`查房結果 ${portDictionary[portNum]}`, messages.join('\n'));
-      $done();
-      return;
+			  const shortItinerary = getShortItinerary(itinerary);
+			  const cabinInfo = getCabinInfos(cabins);
+
+			  let result = `[${cabins.length}房] ${date} ${shortItinerary}`;
+			  messages.push(result);
+			  
+			  if (cabinInfo !== '') {
+				  messages.push(cabinInfo);
+			  }
+		  }
+
+		  sendNotify(portDictionary[portNum], messages);
+	  } catch (e) {
+	      starCruiseNotify('執行錯誤', String(e));
+	  } finally {
+	    $done();
+	  }
+	  
   }
 
   execute();

@@ -2,7 +2,7 @@
 #!desc=Token 過期，請登入帳號後，任意搜尋一個航程以取得最新 token。
 
 [Script]
-[StarCruise] 智慧查房 = type=cron, cronexp="0 0 31 2 *", script-path=https://raw.githubusercontent.com/zmLiu1992/Cabin/refs/heads/master/StarCruiseCheckCabin.js, wake-system=1, timeout=30
+[StarCruise] 智慧查房 = type=generic, script-path=https://raw.githubusercontent.com/zmLiu1992/Cabin/refs/heads/master/StarCruiseCheckCabin.js, timeout=60
 [StarCruise] 取得token = type=http-request, pattern=^https:\/\/backend-prd\.b2m\.stardreamcruises\.com\/customers\/list\/departure-date, script-path=https://raw.githubusercontent.com/zmLiu1992/Cabin/refs/heads/master/StarCruiseToken.js
 
 [MITM]
