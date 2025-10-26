@@ -139,7 +139,8 @@
 
   const portDictionary = {
     12: "基隆",
-    13: "高雄"
+    13: "高雄",
+    11: "香港"
   };
 
   async function execute() {
