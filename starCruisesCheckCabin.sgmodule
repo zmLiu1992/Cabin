@@ -3,7 +3,7 @@
 
 [Script]
 [StarCruise] 智慧查房 = type=generic, script-path=https://raw.githubusercontent.com/zmLiu1992/Cabin/refs/heads/master/StarCruiseCheckCabin.js, timeout=60
-[StarCruise] 取得token = type=http-request, pattern=^https:\/\/backend-prd\.b2m\.stardreamcruises\.com\/customers\/list\/departure-date, script-path=https://raw.githubusercontent.com/zmLiu1992/Cabin/refs/heads/master/StarCruiseToken.js
+[StarCruise] 取得token = type=http-request, pattern=^https:\/\/backend-prd\.b2m\.stardreamcruises\.com\/auth\/customer\/report, script-path=https://raw.githubusercontent.com/zmLiu1992/Cabin/refs/heads/master/StarCruiseToken.js
 
 [MITM]
 hostname = backend-prd.b2m.stardreamcruises.com
