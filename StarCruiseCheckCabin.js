@@ -94,7 +94,7 @@
               } else {
                   if (response.status === 200) {
                       try {
-                          const jsonData = JSON.parse(data);
+                          const jsonData = JSON.parse(body);
                           if (jsonData.items && jsonData.items.length > 0) {
                               resolve(jsonData.items[0].traditional_chinese_name);
                           } else {
