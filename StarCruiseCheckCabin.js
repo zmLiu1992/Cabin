@@ -99,7 +99,7 @@
                               return;
                           }
 
-                          const cabins = jsonData.items.map(item => `(${item.cabin_id}) ${item.traditional_chinese_cabin_name}`);
+                          const cabins = jsonData.items.map(item => `(${item.cabin_fare}P) ${item.traditional_chinese_cabin_name}`);
                           resolve(cabins);
 
                       } catch (e) {
@@ -128,9 +128,15 @@
       }
   }
 
+  function getDateDay(dateStr) {
+      const date = new Date(dateStr);
+	  const days = ["日","一","二","三","四","五","六"];
+      return dateStr + days[date.getDay()];
+  }
+
   function getCabinInfos(cabins) {
       if (Array.isArray(cabins) && cabins.length > 0) {
-          return '         ' + cabins.join('\n');  
+          return '=' + cabins.join('、');  
       }
       
       return '';
@@ -172,7 +178,7 @@
 			  const shortItinerary = getShortItinerary(itinerary);
 			  const cabinInfo = getCabinInfos(cabins);
 
-			  let result = `[${cabins.length}房] ${date} ${shortItinerary}`;
+			  let result = `[${cabins.length}房] ${getDateDay(date)} ${shortItinerary}`;
 			  messages.push(result);
 			  
 			  if (cabinInfo !== '') {
