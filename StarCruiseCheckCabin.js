@@ -153,8 +153,10 @@
 	  const maxMessageLine = 8;
 	  
 	  try {
-		  const portNum = parseInt($intent.parameter || "12", 10);
-		  const persons = 2;
+		  const input = $intent.parameter;
+		  const parameters = input.split("|");
+		  const portNum = parseInt(parameters[0] || "12", 10);
+		  const persons = parseInt(parameters[1] || "2", 10);
 		  let messages = [];
 				
 		  if (!(portNum in portDictionary)) {
