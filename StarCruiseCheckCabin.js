@@ -5,7 +5,7 @@
   };
 
   function getPortInfos() {
-      return new Promise(() => {
+      return new Promise((resolve) => {
         const requestUrl = {
               url: 'https://backend-prd.b2m.stardreamcruises.com/customers/list/port?lang=hant&page=1',
               headers: {
@@ -13,16 +13,15 @@
               }
           };
 
-          $httpClient.get(requestUrl, function(error, response, data) {
+          $httpClient.get(requestUrl, function(error, response, body) {
               if (error) {
                   starCruiseNotify('港口清單查詢失敗 ‼️', '連線錯誤');
                   resolve({});
               } else {
                   if (response.status === 200) {
                       try {
-                          const datas = JSON.parse(data);
-
-                          const portDictionary = data.items
+                          const datas = JSON.parse(body);
+                          const portDictionary = datas.items
                             .filter(item => item.status === true)
                             .reduce((acc, item) => {
                               acc[item.id] = item.traditional_chinese_port_name;
@@ -31,7 +30,7 @@
 
                           resolve(portDictionary);
                       } catch (e) {
-                          starCruiseNotify('港口清單查詢失敗 ‼️', e);
+                          starCruiseNotify('港口清單查詢失敗 ‼️', String(e));
                           resolve({});
                       }
                   } else {
@@ -46,7 +45,6 @@
   }
 
   function getDepartureDates(portNum) {
-
       return new Promise((resolve) => {
           const requestUrl = {
               url: `https://backend-prd.b2m.stardreamcruises.com/customers/list/departure-date?departure_port=${portNum}&lang=hant`,
@@ -55,17 +53,17 @@
               }
           };
 
-          $httpClient.get(requestUrl, function(error, response, data) {
+          $httpClient.get(requestUrl, function(error, response, body) {
               if (error) {
                   starCruiseNotify('出發日查詢失敗 ‼️', '連線錯誤');
                   resolve([]);
               } else {
                   if (response.status === 200) {
                       try {
-                          const datas = JSON.parse(data);
+                          const datas = JSON.parse(body);
                           resolve(datas);
                       } catch (e) {
-                          starCruiseNotify('出發日查詢失敗 ‼️', e);
+                          starCruiseNotify('出發日查詢失敗 ‼️', String(e));
                           resolve([]);
                       }
                   } else {
@@ -89,7 +87,7 @@
               }
           };
 
-          $httpClient.get(requestUrl, function(error, response, data) {
+          $httpClient.get(requestUrl, function(error, response, body) {
               if (error) {
                   starCruiseNotify('出航查詢失敗 ‼️', '連線錯誤');
                   resolve('');
@@ -97,7 +95,6 @@
                   if (response.status === 200) {
                       try {
                           const jsonData = JSON.parse(data);
-
                           if (jsonData.items && jsonData.items.length > 0) {
                               resolve(jsonData.items[0].traditional_chinese_name);
                           } else {
@@ -105,7 +102,7 @@
                           }
 
                       } catch (e) {
-                          starCruiseNotify('出航查詢失敗 ‼️', e);
+                          starCruiseNotify('出航查詢失敗 ‼️', String(e));
                           resolve('');
                       }
                   } else {
@@ -126,15 +123,14 @@
               }
           };
 
-          $httpClient.get(requestUrl, function(error, response, data) {
+          $httpClient.get(requestUrl, function(error, response, body) {
               if (error) {
                   starCruiseNotify('查房失敗 ‼️', '連線錯誤');
                   resolve([]);
               } else {
                   if (response.status === 200) {
                       try {
-                          const jsonData = JSON.parse(data);
-
+                          const jsonData = JSON.parse(body);
                           if (!jsonData.items || jsonData.items.length == 0) {
                               resolve([]);
                               return;
@@ -144,7 +140,7 @@
                           resolve(cabins);
 
                       } catch (e) {
-                          starCruiseNotify('查房失敗 ‼️', e);
+                          starCruiseNotify('查房失敗 ‼️', String(e));
                           resolve([]);
                       }
                   } else {
