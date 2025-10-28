@@ -150,7 +150,7 @@
   };
 
   async function execute() {
-	  const maxMessageLine = 8;
+	  const maxMessageCount = 8;
 	  
 	  try {
 		  const input = $intent.parameter;
@@ -188,7 +188,7 @@
 			  }
 			  
 			  const isLast = i === departureDates.length - 1;
-			  if (messages.length === maxMessageLine || isLast) {
+			  if (messages.length === maxMessageCount || isLast) {
 			      starCruiseNotify(`『${portDictionary[portNum]}』 出發`, messages.join('\n'));
 				  messages = [];
 			  }
@@ -198,7 +198,6 @@
 	  } finally {
 	    $done();
 	  }
-	  
   }
 
   execute();
