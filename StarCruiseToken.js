@@ -20,9 +20,9 @@ if (starCruiseToken) {
         );
     }
 } else {
-    starCruiseNotify(
-        '保存失敗 ‼️',
-        '請重新登入'
-    );
+    //starCruiseNotify(
+    //    '保存失敗 ‼️',
+    //    '請重新登入'
+    //);
 }
 $done({});
