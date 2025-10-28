@@ -188,7 +188,7 @@
 			  }
 			  
 			  const isLast = i === departureDates.length - 1;
-			  if (messages.length === maxMessageCount || isLast) {
+			  if (messages.length >= maxMessageCount || isLast) {
 			      starCruiseNotify(`『${portDictionary[portNum]}』 出發`, messages.join('\n'));
 				  messages = [];
 			  }
