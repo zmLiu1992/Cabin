@@ -4,6 +4,47 @@
       });
   };
 
+  function getPortInfos() {
+      return new Promise(() => {
+        const requestUrl = {
+              url: 'https://backend-prd.b2m.stardreamcruises.com/customers/list/port?lang=hant&page=1',
+              headers: {
+                  'authorization': $persistentStore.read('StarCruiseToken'),
+              }
+          };
+
+          $httpClient.get(requestUrl, function(error, response, data) {
+              if (error) {
+                  starCruiseNotify('港口清單查詢失敗 ‼️', '連線錯誤');
+                  resolve({});
+              } else {
+                  if (response.status === 200) {
+                      try {
+                          const datas = JSON.parse(data);
+
+                          const portDictionary = data.items
+                            .filter(item => item.status === true)
+                            .reduce((acc, item) => {
+                              acc[item.id] = item.traditional_chinese_port_name;
+                              return acc;
+                            }, {});
+
+                          resolve(portDictionary);
+                      } catch (e) {
+                          starCruiseNotify('港口清單查詢失敗 ‼️', e);
+                          resolve({});
+                      }
+                  } else {
+                      starCruiseNotify('Cookie 已過期 ‼️', '請重新登入');
+                      resolve({});
+                      $done();
+                      return;
+                  }
+              }
+          });
+      });
+  }
+
   function getDepartureDates(portNum) {
 
       return new Promise((resolve) => {
@@ -142,23 +183,22 @@
       return '';
   }
 
-
-  const portDictionary = {
-    12: "基隆",
-    13: "高雄",
-    11: "香港"
-  };
-
   async function execute() {
 	  const maxMessageCount = 8;
 	  
 	  try {
 		  const input = $intent.parameter;
 		  const parameters = input.split("|");
-		  const portNum = parseInt(parameters[0] || "12", 10);
-		  const persons = parseInt(parameters[1] || "2", 10);
-		  let messages = [];
+		  const portNum = parseInt(parameters[0], 10);
+		  const persons = parseInt(parameters[1], 10);
+
+      if (Number.isNaN(portNum) || Number.isNaN(persons)) {
+        starCruiseNotify('參數錯誤', '請正確輸入港口編號與人數！');
+        $done();
+        return;
+      }
 				
+      const portDictionary = await getPortInfos();  
 		  if (!(portNum in portDictionary)) {
 			  starCruiseNotify('港口編號錯誤', `未知港口編號 ${portNum}`);
 			  $done();
@@ -172,6 +212,7 @@
 			  return;
 		  }
 
+      let messages = [];
 		  for (let i = 0; i < departureDates.length; i++) {
 			  const date = departureDates[i];
 			  const itinerary = await getItinerary(portNum, date);
