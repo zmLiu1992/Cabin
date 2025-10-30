@@ -1,5 +1,5 @@
   function starCruiseNotify(subtitle = '', message = '') {
-      $notification.post('StarCruise 智慧查房', subtitle, message, {
+      $notification.post('Star Cruises 探索星號', subtitle, message, {
           'url': ''
       });
   };
@@ -173,7 +173,7 @@
 
   function getCabinInfos(cabins) {
       if (Array.isArray(cabins) && cabins.length > 0) {
-          return '=' + cabins.join('、');  
+          return '=' + cabins.join(',');  
       }
       
       return '';

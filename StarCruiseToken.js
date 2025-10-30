@@ -1,5 +1,5 @@
 function starCruiseNotify(subtitle = '', message = '') {
-    $notification.post('[Star Cruise] 獲取 Token', subtitle, message, {
+    $notification.post('[Star Cruises] 獲取 Token', subtitle, message, {
         'url': ''
     });
 };
