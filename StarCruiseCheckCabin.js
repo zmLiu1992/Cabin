@@ -270,7 +270,7 @@
 
   function getCabinInfos(cabins) {
       if (Array.isArray(cabins) && cabins.length > 0) {
-          return '  ⮑' + cabins.join(' ');  
+          return '  ⮑' + cabins.join(' ');  
       }
       
       return '';
@@ -346,8 +346,8 @@ function getCurrentDateTime() {
 				  lastGroupYearMonth = yearMonth;
 			  }
 
-			  
-			  let result = `[${cabins.length}房] ${getDateDay(date)} ${shortItinerary}`;
+			  const cabinStatusSymbol = cabins.length > 0 ? "✅" : "❌";
+			  let result = `${cabinStatusSymbol} ${getDateDay(date)} ${shortItinerary}`;
 			  messages.push(result);
 			  
 			  if (cabinInfo !== '') {
@@ -366,8 +366,8 @@ function getCurrentDateTime() {
 		  const msg = '🌟 [Star Cruises] 探索星號\n' +
 			  `${customerInfo}\n` +
 			  `查詢時間：${getCurrentDateTime()}\n` +
+			  `出發地：${portDictionary[portNum]} ｜ 人數：${persons} 人\n` +
 			  '\n' +
-			  `『${portDictionary[portNum]}』出發，『${persons}』人\n` +
 			  `${messages.join('\n')}`;
 		  quickDisplay(msg);
 	  } catch (e) {
