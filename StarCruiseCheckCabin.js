@@ -18,8 +18,8 @@
 
       // 發一則可操作的通知：點了就打開捷徑並把值丟進去
       $notification.post(
-        "房間查詢完成",
-        "點擊這則通知以開啟捷徑顯示結果",
+        "[Star Cruises] 探索星號 房間查詢完成",
+        "點擊這則通知以開啟捷徑，顯示完整結果",
         result,
         {
           action: "open-url", // 點通知後執行「開網址」
@@ -49,7 +49,7 @@
                   if (response.status === 200) {
                       try {
                           const datas = JSON.parse(body);
-                          const info = `剩餘客房點數：{datas.cabin_credits} P`;
+                          const info = $`剩餘客房點數：{datas.cabin_credits} P`;
                           resolve(info);
                       } catch (e) {
                           starCruiseNotify('旅客資訊查詢失敗 ‼️', String(e));
@@ -315,15 +315,16 @@
 				  messages.push(cabinInfo);
 			  }
 			  
-        // 每8行顯示一次通知
+        	  // 每8行顯示一次通知
 			  // const isLast = i === departureDates.length - 1;
 			  // if (messages.length >= maxMessageCount || isLast) {
 			  //     starCruiseNotify(`『${portDictionary[portNum]}』 出發`, messages.join('\n'));
 				//   messages = [];
 			  // }
-
-        quickDisplay(`{customerInfo}\n\n{messages.join('\n')}`);
 		  }
+
+		  // 一次顯示全部資訊
+		  quickDisplay($`{customerInfo}\n\n{messages.join('\n')}`);
 	  } catch (e) {
 	      starCruiseNotify('執行錯誤', String(e));
         $done();
