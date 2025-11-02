@@ -49,7 +49,7 @@
                   if (response.status === 200) {
                       try {
                           const datas = JSON.parse(body);
-                          const info = $`剩餘客房點數：{datas.cabin_credits} P`;
+                          const info = `剩餘客房點數：${datas.cabin_credits} P`;
                           resolve(info);
                       } catch (e) {
                           starCruiseNotify('旅客資訊查詢失敗 ‼️', String(e));
@@ -324,7 +324,7 @@
 		  }
 
 		  // 一次顯示全部資訊
-		  quickDisplay($`{customerInfo}\n\n{messages.join('\n')}`);
+		  quickDisplay(`${customerInfo}\n\n${messages.join('\n')}`);
 	  } catch (e) {
 	      starCruiseNotify('執行錯誤', String(e));
         $done();
