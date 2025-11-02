@@ -265,12 +265,12 @@
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份從 0 開始，所以要 +1
 
-    return `🗓️ ${year} 年 ${month} 月`;
+    return `📌 ${year} 年 ${month} 月`;
   }
 
   function getCabinInfos(cabins) {
       if (Array.isArray(cabins) && cabins.length > 0) {
-          return '  ⮑' + cabins.join(' ');  
+          return '       ⮑' + cabins.join(' ');  
       }
       
       return '';
@@ -363,7 +363,7 @@ function getCurrentDateTime() {
 		  }
 
 		  // 一次顯示全部資訊
-		  const msg = '🌟 [Star Cruises] 探索星號\n' +
+		  const msg = '🌟 [Star Cruises] 探索星號 🚢\n' +
 			  `${customerInfo}\n` +
 			  `查詢時間：${getCurrentDateTime()}\n` +
 			  `出發地：${portDictionary[portNum]} ｜ 人數：${persons} 人\n` +
