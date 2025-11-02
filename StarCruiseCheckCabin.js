@@ -263,7 +263,7 @@
   function getDateYearMonth(dateStr) {
 	const date = new Date(dateStr);
     const year = date.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0'); // 月份從 0 開始，所以要 +1
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份從 0 開始，所以要 +1
 
     return `🗓️ ${year} 年 ${month} 月`;
   }
