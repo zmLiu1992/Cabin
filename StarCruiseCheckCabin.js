@@ -25,7 +25,7 @@
           action: "open-url", // 點通知後執行「開網址」
           url,                 // 這個網址就是上面的 shortcuts://...
           sound: true,         //（可選）有提示音
-          auto-dismiss: 0      //（可選）0 代表不自動消失
+          "auto-dismiss": 0      //（可選）0 代表不自動消失
         }
       );
   }
