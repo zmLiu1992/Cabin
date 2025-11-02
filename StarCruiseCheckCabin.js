@@ -252,16 +252,30 @@
   function getDateDay(dateStr) {
       const date = new Date(dateStr);
 	  const days = ["日","一","二","三","四","五","六"];
-      return dateStr + days[date.getDay()];
+      return `${dateStr} (${days[date.getDay()]})`;
   }
 
   function getCabinInfos(cabins) {
       if (Array.isArray(cabins) && cabins.length > 0) {
-          return '=' + cabins.join(',');  
+          return '  ⮑' + cabins.join(',');  
       }
       
       return '';
   }
+
+function getCurrentDateTime() {
+  const now = new Date();
+
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+
+  return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
+}
 
   async function execute() {
 	  const maxMessageCount = 8;
@@ -324,7 +338,12 @@
 		  }
 
 		  // 一次顯示全部資訊
-		  quickDisplay(`${customerInfo}\n\n${messages.join('\n')}`);
+		  const msg = '[Star Cruises] 探索星號\n' +
+			  `${customerInfo}\n` +
+			  `$查詢時間：${getCurrentDateTime()}\n` +
+			  '\n' +
+			  `${messages.join('\n')}`;
+		  quickDisplay(msg);
 	  } catch (e) {
 	      starCruiseNotify('執行錯誤', String(e));
         $done();
