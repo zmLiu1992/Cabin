@@ -1,8 +1,72 @@
   function starCruiseNotify(subtitle = '', message = '') {
-      $notification.post('Star Cruises 探索星號', subtitle, message, {
+      $notification.post('[Star Cruises] 探索星號', subtitle, message, {
           'url': ''
       });
   };
+
+  function quickDisplay(result = '') {
+
+      // 捷徑名稱（請先在捷徑 App 建一個同名捷徑）
+      const shortcutName = "StarCruise顯示";
+
+      // Shortcuts URL scheme（把 result 當作捷徑輸入）
+      const url =
+        "shortcuts://run-shortcut?name=" +
+        encodeURIComponent(shortcutName) +
+        "&input=" +
+        encodeURIComponent(result);
+
+      // 發一則可操作的通知：點了就打開捷徑並把值丟進去
+      $notification.post(
+        "房間查詢完成",
+        "點擊這則通知以開啟捷徑顯示結果",
+        result,
+        {
+          action: "open-url", // 點通知後執行「開網址」
+          url,                 // 這個網址就是上面的 shortcuts://...
+          sound: true,         //（可選）有提示音
+          auto-dismiss: 0      //（可選）0 代表不自動消失
+        }
+      );
+  }
+
+  function getCustomerInfo() {
+      return new Promise((resolve) => {
+        const requestUrl = {
+              url: 'https://backend-prd.b2m.stardreamcruises.com/auth/customer/report',
+              headers: {
+                  'authorization': $persistentStore.read('StarCruiseToken'),
+              }
+          };
+
+          $httpClient.get(requestUrl, function(error, response, body) {
+              if (error) {
+                  starCruiseNotify('旅客資訊查詢失敗 ‼️', '連線錯誤');
+                  resolve('');
+                  $done();
+                  return;
+              } else {
+                  if (response.status === 200) {
+                      try {
+                          const datas = JSON.parse(body);
+                          const info = `剩餘客房點數：{datas.cabin_credits} P`;
+                          resolve(info);
+                      } catch (e) {
+                          starCruiseNotify('旅客資訊查詢失敗 ‼️', String(e));
+                          resolve('');
+                          $done();
+                          return;
+                      }
+                  } else {
+                      starCruiseNotify('Cookie 已過期 ‼️', '請重新登入');
+                      resolve('');
+                      $done();
+                      return;
+                  }
+              }
+          });
+      });
+  }
 
   function getPortInfos() {
       return new Promise((resolve) => {
@@ -17,6 +81,8 @@
               if (error) {
                   starCruiseNotify('港口清單查詢失敗 ‼️', '連線錯誤');
                   resolve({});
+                  $done();
+                  return;
               } else {
                   if (response.status === 200) {
                       try {
@@ -32,6 +98,8 @@
                       } catch (e) {
                           starCruiseNotify('港口清單查詢失敗 ‼️', String(e));
                           resolve({});
+                          $done();
+                          return;
                       }
                   } else {
                       starCruiseNotify('Cookie 已過期 ‼️', '請重新登入');
@@ -57,6 +125,8 @@
               if (error) {
                   starCruiseNotify('出發日查詢失敗 ‼️', '連線錯誤');
                   resolve([]);
+                  $done();
+                  return;
               } else {
                   if (response.status === 200) {
                       try {
@@ -65,12 +135,14 @@
                       } catch (e) {
                           starCruiseNotify('出發日查詢失敗 ‼️', String(e));
                           resolve([]);
+                          $done();
+                          return;
                       }
                   } else {
                       starCruiseNotify('Cookie 已過期 ‼️', '請重新登入');
                       resolve([]);
-					  $done();
-					  return;
+					            $done();
+					            return;
                   }
               }
           });
@@ -91,6 +163,8 @@
               if (error) {
                   starCruiseNotify('出航查詢失敗 ‼️', '連線錯誤');
                   resolve('');
+                  $done();
+                  return;
               } else {
                   if (response.status === 200) {
                       try {
@@ -104,10 +178,14 @@
                       } catch (e) {
                           starCruiseNotify('出航查詢失敗 ‼️', String(e));
                           resolve('');
+                          $done();
+                          return;
                       }
                   } else {
                       starCruiseNotify('Cookie 已過期 ‼️', '請重新登入');
                       resolve('');
+                      $done();
+                      return;
                   }
               }
           });
@@ -127,6 +205,8 @@
               if (error) {
                   starCruiseNotify('查房失敗 ‼️', '連線錯誤');
                   resolve([]);
+                  $done();
+                  return;
               } else {
                   if (response.status === 200) {
                       try {
@@ -142,10 +222,14 @@
                       } catch (e) {
                           starCruiseNotify('查房失敗 ‼️', String(e));
                           resolve([]);
+                          $done();
+                          return;
                       }
                   } else {
                       starCruiseNotify('Cookie 已過期 ‼️', '請重新登入');
                       resolve([]);
+                      $done();
+                      return;
                   }
               }
           });
@@ -194,6 +278,13 @@
         return;
       }
 				
+      const customerInfo = await getCustomerInfo();
+      if (customerInfo === '') {
+        starCruiseNotify('旅客資訊錯誤', `沒有資料`);
+        $done();
+        return;
+      }
+
       const portDictionary = await getPortInfos();  
 		  if (!(portNum in portDictionary)) {
 			  starCruiseNotify('港口編號錯誤', `未知港口編號 ${portNum}`);
@@ -224,17 +315,23 @@
 				  messages.push(cabinInfo);
 			  }
 			  
-			  const isLast = i === departureDates.length - 1;
-			  if (messages.length >= maxMessageCount || isLast) {
-			      starCruiseNotify(`『${portDictionary[portNum]}』 出發`, messages.join('\n'));
-				  messages = [];
-			  }
+        // 每8行顯示一次通知
+			  // const isLast = i === departureDates.length - 1;
+			  // if (messages.length >= maxMessageCount || isLast) {
+			  //     starCruiseNotify(`『${portDictionary[portNum]}』 出發`, messages.join('\n'));
+				//   messages = [];
+			  // }
+
+        quickDisplay(`{customerInfo}\n\n{messages.join('\n')}`);
 		  }
 	  } catch (e) {
 	      starCruiseNotify('執行錯誤', String(e));
-	  } finally {
-	    $done();
+        $done();
+        return;
 	  }
+	  
+    $done();
+    return;  
   }
 
   execute();
